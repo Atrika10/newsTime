@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import NewsItem from "./NewsItem";
 import Spinner from "./Spinner";
 import PropTypes from "prop-types";
-
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function News(props){
   const [articles, setArticles] = useState([]);
@@ -34,23 +34,38 @@ export default function News(props){
     // eslint-disable-next-line
   },[])
 
-  const handlePrevBtn = async () => {
-    setPage(page-1);
-    updateNews();
-  };
-  const handleNextBtn = async () => {
-    console.log("next btn clicked");
-    setPage(page+1)
-    updateNews();
+
+
+   const fetchMoreData = async() => {
+    
+     setPage(page+1);
+    const url =  `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apikey}&page=${page+1}&pagesize=${props.pagesize}`;
+
+
+    setLoading(true);
+    let response = await fetch(url);
+    let data = await response.json();
+      
+    setArticles(articles.concat(data.articles));
+    setTotalResults(data.totalResults);
+    setLoading(false);
+    
   };
 
   
     return (
       <>
-        <div className="container my-3">
+        
           <h2 style={{marginTop : '80px', textAlign : 'center'}}> Daily News -Top {props.category} headlines</h2>
           {loading && <Spinner />}
 
+          <InfiniteScroll
+          dataLength={articles.length}
+          next={fetchMoreData}
+          hasMore={articles.length !== totalResults}
+          loader={<Spinner/>}
+          >
+          <div className="container my-3">
           <div className="row">
             {articles.map((element) => {
               return (
@@ -67,29 +82,10 @@ export default function News(props){
               );
             })}
           </div>
-
-          <div className="container d-flex justify-content-between">
-            <button
-              disabled={page <= 1}
-              type="button"
-              className="btn btn-dark"
-              onClick={handlePrevBtn}
-            >
-              &larr; Previous
-            </button>
-            <button
-              disabled={
-                page + 1 >
-                Math.ceil(totalResults / props.pagesize)
-              }
-              type="button"
-              className="btn btn-dark"
-              onClick={handleNextBtn}
-            >
-              Next &rarr;
-            </button>
           </div>
-        </div>
+          </InfiniteScroll>
+
+          
       </>
     );
   
