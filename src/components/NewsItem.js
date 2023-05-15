@@ -1,7 +1,7 @@
 import React from "react";
-//b2f661aba90e49eba0d98d19cac4ba0c
+
+
 export default function NewsItem (props) {
- 
     let { title, description, imageUrl, newsUrl, author, date } = props;
 
     return (

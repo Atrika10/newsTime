@@ -1,79 +1,58 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import NewsItem from "./NewsItem";
 import Spinner from "./Spinner";
 import PropTypes from "prop-types";
 
-// let category = 'business';
-// const API_URL = `https://newsapi.org/v2/top-headlines?country={this.props.categories}&category=${category}&apiKey=b2f661aba90e49eba0d98d19cac4ba0c`;
-// const API_URL = "https://newsapi.org/v2/top-headlines?country=us&apiKey=b2f661aba90e49eba0d98d19cac4ba0c&pagesize=6";
 
-export default class News extends Component {
-  static defaultProps = {
-    country: "in",
-    pagesize: 6,
-    category: "general",
-  };
-  static propTypes = {
-    country: PropTypes.string,
-    pagesize: PropTypes.number,
-    category: PropTypes.string,
-  };
+export default function News(props){
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      articles: [],
-      loading: false,
-      page: 1,
-    };
-    document.title = `${this.props.category} - Daily News`;
+  console.log(props.apikey + " thisis");
+
+   const updateNews =  async ()=> {
+    props.setProgress(10);
+    const url =  `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apikey}&page=${page}&pagesize=${props.pagesize}`;
+
+    setLoading(true);
+    let response = await fetch(url);
+    let data = await response.json();
+      
+      props.setProgress(30);
+      setArticles(data.articles);
+      setTotalResults(data.totalResults);
+
+      setLoading(false);
+    
+    props.setProgress(100);
   }
 
-  async updateNews() {
-    this.props.setProgress(10);
-    this.setState({ loading: true });
-    if (
-      this.state.page + 1 >
-      Math.ceil(this.state.totalResults / this.props.pagesize)
-    ) {
-    } else {
-      let response = await fetch(
-        `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apikey}&page=${this.state.page}&pagesize=${this.props.pagesize}`
-      );
-      let data = await response.json();
-      this.props.setProgress(30);
-      this.setState({
-        articles: data.articles,
-        totalResults: data.totalResults,
-        loading: false,
-      });
-    }
-    this.props.setProgress(100);
-  }
+  useEffect(()=>{
+    updateNews();
+    // eslint-disable-next-line
+  },[])
 
-  async componentDidMount() {
-    this.updateNews();
-  }
-
-  handlePrevBtn = async () => {
-    this.setState({ page: this.state.page - 1 });
-    this.updateNews();
+  const handlePrevBtn = async () => {
+    setPage(page-1);
+    updateNews();
   };
-  handleNextBtn = async () => {
+  const handleNextBtn = async () => {
     console.log("next btn clicked");
-    this.setState({ page: this.state.page + 1 });
-    this.updateNews();
+    setPage(page+1)
+    updateNews();
   };
 
-  render() {
+  
     return (
       <>
         <div className="container my-3">
-          <h2 style={{marginTop : '80px', textAlign : 'center'}}> Daily News -Top {this.props.category} headlines</h2>
-          {this.state.loading && <Spinner />}
+          <h2 style={{marginTop : '80px', textAlign : 'center'}}> Daily News -Top {props.category} headlines</h2>
+          {loading && <Spinner />}
 
           <div className="row">
-            {this.state.articles.map((element) => {
+            {articles.map((element) => {
               return (
                 <div className="col-md-4" key={element.url}>
                   <NewsItem
@@ -91,21 +70,21 @@ export default class News extends Component {
 
           <div className="container d-flex justify-content-between">
             <button
-              disabled={this.state.page <= 1}
+              disabled={page <= 1}
               type="button"
               className="btn btn-dark"
-              onClick={this.handlePrevBtn}
+              onClick={handlePrevBtn}
             >
               &larr; Previous
             </button>
             <button
               disabled={
-                this.state.page + 1 >
-                Math.ceil(this.state.totalResults / this.props.pagesize)
+                page + 1 >
+                Math.ceil(totalResults / props.pagesize)
               }
               type="button"
               className="btn btn-dark"
-              onClick={this.handleNextBtn}
+              onClick={handleNextBtn}
             >
               Next &rarr;
             </button>
@@ -113,5 +92,18 @@ export default class News extends Component {
         </div>
       </>
     );
-  }
+  
 }
+
+News.defaultProps = {
+  country: "in",
+  pagesize: 6,
+  category: "general",
+};
+News.propTypes = {
+  country: PropTypes.string,
+  pagesize: PropTypes.number,
+  category: PropTypes.string,
+};
+
+
