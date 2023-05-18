@@ -34,8 +34,6 @@ export default function News(props){
     // eslint-disable-next-line
   },[])
 
-
-
    const fetchMoreData = async() => {
     
      setPage(page+1);
@@ -56,7 +54,7 @@ export default function News(props){
     return (
       <>
         
-          <h2 style={{marginTop : '80px', textAlign : 'center'}}> Daily News -Top {props.category} headlines</h2>
+          <h2 className="heading" style={{marginTop : '80px', textAlign : 'center'}}> Daily News -Top {props.category} headlines</h2>
           {loading && <Spinner />}
 
           <InfiniteScroll

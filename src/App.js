@@ -10,13 +10,10 @@ import LoadingBar from 'react-top-loading-bar';
 export default function App() {
  const apikey = process.env.REACT_APP_NEWS_API;
  console.log(apikey);
-  // state = {
-  //   progress : 10
-  // }
   const [progress, setProgress] = useState(0)
 
     return (
-      <div>
+      <div className='app'>
         < Router>
             <LoadingBar
             color='#f11946'

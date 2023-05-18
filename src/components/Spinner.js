@@ -1,11 +1,11 @@
 import React from 'react';
-import loading from './Fading line.gif'
+import loading from './spinner.gif'
 
 export default function Spinner() {
   
     return (
       <div className='text-center'>
-        <img src={loading} alt="loading..." />
+        <img style={{width : "4rem"}} src={loading} alt="loading..." />
       </div>
     )
   
